@@ -1,7 +1,16 @@
 from __future__ import absolute_import
 import socket as py_socket
 from time import gmtime, strftime
-import
+
+import os
+import sys
+import inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+import utils
+
 
 ALLOWED_NUMBER_OF_CONNECTIONS = 1
 COMMAND_HEADER = 0
@@ -63,7 +72,7 @@ class ServerIPX:
             self.socket.listen(number_of_connections)
             test_print("Opened " + str(number_of_connections) + ' connection(s)')
 
-            self.commands = ServerCommands()
+            self.commands = utils.ServerCommands()
 
             self.client = None
 

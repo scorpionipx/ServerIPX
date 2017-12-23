@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import socket as py_socket
 from time import gmtime, strftime
-from .utils import ServerCommands
+import
 
 ALLOWED_NUMBER_OF_CONNECTIONS = 1
 COMMAND_HEADER = 0

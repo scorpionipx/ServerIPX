@@ -79,6 +79,63 @@ class ClientIPX:
             encoding = self.default_encoding
         return bytes(_string, encoding)
 
+    def decode_server_response(self, server_response):
+        """
+            Method decodes client's response.
+        :param server_response: bytes received from client
+        :return:
+        """
+        response = {"Type": None, "ID": None, "Content": None, "Valid": True, "Error": None}
+
+        server_response = server_response.decode(self.default_encoding)
+        server_response = server_response.split()
+        response["Type"] = server_response[0]
+        response["ID"] = server_response[1]
+
+        # extract content - needed if content contains new line character
+        content = ''
+        for index, item in enumerate(server_response):
+            if index > 1:
+                content += '\n'
+                content += str(item)
+
+        response["Content"] = content
+
+        # validate content
+        if response["Valid"]:
+            if (response["Type"]) == str(COMMAND_HEADER) or str(response["Type"]) == str(DATA_HEADER):
+                response["Valid"] = True
+            else:
+                response["Valid"] = False
+                if response["Error"] is None:
+                    response["Error"] = "Invalid header ID!"
+                else:
+                    response["Error"] += '\n'
+                    response["Error"] += "Invalid header ID!"
+
+        if response["Valid"]:
+            id_is_valid = False
+            for command in self.server_commands.all_commands:
+                if str(command) == str(response["ID"]):
+                    id_is_valid = True
+                    break
+
+            if id_is_valid:
+                response["Valid"] = True
+            else:
+                response["Valid"] = False
+                if response["Error"] is None:
+                    response["Error"] = "Invalid data/command ID!"
+                else:
+                    response["Error"] += '\n'
+                    response["Error"] += "Invalid data/command ID!"
+
+        # test_print("\nType: " + str(response["Type"]) + "\nID: " + str(response["ID"]) + "\nContent:" +
+        #            str(response["Content"]) + "\nValid: " + str(response["Valid"]) + "\nErrors: " +
+        #            str(response["Error"]))
+
+        return response
+
     def send_command_to_host(self, command, extra=None):
         """
             Method sends a command to the host.
